@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Form Details</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/4.6.1/css/bootstrap.min.css}" />
+		<link rel="stylesheet" type="text/css" th:href="@{/webjars/font-awesome/5.15.4/css/all.css}" />
+
+        <link rel="stylesheet" th:href="@{css/style.css}">
+        
+        <!-- Order is important: jquery, popper, bootstrap -->
+		<script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+		<script type="text/javascript" th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+		<script type="text/javascript" th:src="@{/webjars/bootstrap/4.6.1/js/bootstrap.min.js}"></script>
+        <script type="text/javascript">
+        </script>
+        
+    </head>
+    <body>
+        <div class="container my-5">
+            <h2 class="mb-5">Form Details</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <form action="#" th:action="@{/forms/save}" th:object="${form}" method="post">
+                        <input type="hidden" th:field="*{id}">
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="name" class="col-form-label">Form Name</label>
+                                <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Form Name">
+                                <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="field1" class="col-form-label">Field 1</label>
+                                <input type="text" th:field="*{field1}" class="form-control" id="field1" placeholder="Field1">
+                                <span th:if="${#fields.hasErrors('field1')}" th:errors="*{field1}" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+							<div class="form-group col-md-6">
+                                <label for="field2" class="col-form-label">Field 2</label>
+                                <input type="text" th:field="*{field2}" class="form-control" id="field2" placeholder="Field2">
+                                <span th:if="${#fields.hasErrors('field2')}" th:errors="*{field2}" class="text-danger"></span>
+                            </div>
+						</div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mt-5">
+                                <input type="submit" class="btn btn-primary" value="Save Form">
+                            </div>
+                        </div>    
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        
+    </body>
+</html>
