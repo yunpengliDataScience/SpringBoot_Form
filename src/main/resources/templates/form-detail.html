@@ -35,6 +35,15 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-md-6">
+                                <label for="codes" class="col-form-label">Select a code:</label>
+							    <select id="codes" name="codeOptions" class="form-control" th:field="*{code}">
+							        <option value="" disabled selected>Select a code</option> <!-- Default option -->
+							        <option th:each="code : *{codes}" th:value="${code}" th:text="${code}" ></option>
+							    </select>                                
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
                                 <label for="field1" class="col-form-label">Field 1</label>
                                 <input type="text" th:field="*{field1}" class="form-control" id="field1" placeholder="Field1">
                                 <span th:if="${#fields.hasErrors('field1')}" th:errors="*{field1}" class="text-danger"></span>
