@@ -1,6 +1,7 @@
 package org.dragon.yunpeng.form.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -12,7 +13,7 @@ public class FormList implements Serializable {
 	private List<Form> forms;
 
 	public FormList() {
-		// forms = new ArrayList<Form>();
+		forms = new ArrayList<Form>();
 	}
 
 	public FormList(List<Form> forms) {
