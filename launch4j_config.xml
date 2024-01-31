@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>console</headerType>
   <jar>C:\Projects\SpringBoot_Form\target\SpringBoot_Form.jar</jar>
-  <outfile>C:\Temp\SpringBootStandAlone\SpringBoot_Form.exe</outfile>
+  <outfile>C:\Temp\SpringBootStandAlone\SpringBoot_NavyForm.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>true</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\Projects\SpringBoot_Form\autobot.ico</icon>
+  <icon>C:\Projects\SpringBoot_Form\navy.ico</icon>
   <jre>
     <path>jre</path>
     <requiresJdk>false</requiresJdk>
