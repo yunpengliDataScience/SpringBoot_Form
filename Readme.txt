@@ -17,3 +17,6 @@ User Name: sa
 Password: sa
 
 Or use DBeaver as an universal SQL client to access H2 database, but need to kill the exe process first.
+
+Get the Running Port in Spring Boot:
+https://www.baeldung.com/spring-boot-running-port
