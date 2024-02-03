@@ -8,9 +8,9 @@
   <cmdLine></cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
-  <downloadUrl></downloadUrl>
+  <downloadUrl>http://java.com/download</downloadUrl>
   <supportUrl></supportUrl>
-  <stayAlive>true</stayAlive>
+  <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
   <icon>C:\Projects\SpringBoot_Form\navy.ico</icon>
