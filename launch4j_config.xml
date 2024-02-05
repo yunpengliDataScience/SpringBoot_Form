@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\Projects\SpringBoot_Form\navy.ico</icon>
+  <icon>C:\Projects\SpringBoot_Form\src\main\resources\navy.ico</icon>
   <jre>
     <path>jre</path>
     <requiresJdk>false</requiresJdk>
