@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dropdown Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Dropdown Example</h1>
+
+    <label for="category">Category:</label>
+    <select id="category">
+        <option value="">Select Category</option>
+        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+    </select>
+
+    <label for="subcategory">Subcategory:</label>
+    <select id="subcategory">
+        <option value="">Select Subcategory</option>
+    </select>
+
+    <script>
+        $(document).ready(function() {
+            $('#category').change(function() {
+                var categoryId = $(this).val();
+                var subcategorySelect = $('#subcategory');
+                subcategorySelect.empty().append('<option value="">Select Subcategory</option>');
+
+				alert(categoryId);
+				
+                if (categoryId) {
+                    $.ajax({
+                        url: 'http://localhost:9090/SpringBoot_Form/subcategories/' + categoryId,
+                        method: 'GET',
+                        success: function(data) {
+                            data.forEach(function(subcategory) {
+                                subcategorySelect.append('<option value="' + subcategory.id + '">' + subcategory.name + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
