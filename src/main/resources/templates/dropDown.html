@@ -12,24 +12,35 @@
         <option value="">Select Category</option>
         <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
     </select>
-
+	<br/>
+	<br/>
     <label for="subcategory">Subcategory:</label>
     <select id="subcategory">
         <option value="">Select Subcategory</option>
     </select>
 
     <script>
+		 
         $(document).ready(function() {
             $('#category').change(function() {
+				
+				var requestPath = "[[@{'/api'}]]" + "/subcategories/";
+				
                 var categoryId = $(this).val();
                 var subcategorySelect = $('#subcategory');
                 subcategorySelect.empty().append('<option value="">Select Subcategory</option>');
 
-				alert(categoryId);
+				//alert(categoryId);
+				//alert(requestPath);
 				
                 if (categoryId) {
+					var url = requestPath + categoryId;
+					
+					//alert(url);
+					
                     $.ajax({
-                        url: 'http://localhost:9090/SpringBoot_Form/subcategories/' + categoryId,
+                        //url: 'http://localhost:9090/SpringBoot_Form/api/subcategories/' + categoryId,
+                        url: url,
                         method: 'GET',
                         success: function(data) {
                             data.forEach(function(subcategory) {

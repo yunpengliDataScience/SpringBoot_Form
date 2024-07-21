@@ -1,5 +1,6 @@
 To access application:
 http://localhost:8081/SpringBoot_Form/forms
+http://localhost:9090/SpringBoot_Form/dropDown
 
 To add run time argument, such as a new server port number, for the .exe create a .ini fie:
 The ini file's name must correspond to the exe file (myapp.exe: myapp.l4j.ini)
@@ -20,3 +21,6 @@ Or use DBeaver as an universal SQL client to access H2 database, but need to kil
 
 Get the Running Port in Spring Boot:
 https://www.baeldung.com/spring-boot-running-port
+
+Spring Boot AJAX Get and Post Examples with jQuery: 
+https://www.youtube.com/watch?v=8IcTBJ7D0Ek
