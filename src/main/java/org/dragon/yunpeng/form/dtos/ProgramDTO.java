@@ -57,6 +57,4 @@ public class ProgramDTO {
 		this.type_obsolete = type_obsolete;
 	}
 
-	// getters and setters
-
 }
