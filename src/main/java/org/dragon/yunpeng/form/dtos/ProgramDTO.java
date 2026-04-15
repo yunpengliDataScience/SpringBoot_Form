@@ -1,60 +1,81 @@
 package org.dragon.yunpeng.form.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ProgramDTO {
 
-	private int program_id;
-	private int type_id;
-	private String name;
-	private String type;
-	private boolean program_obsolete;
-	private boolean type_obsolete;
+	@JsonProperty("program_id")
+    private int programId;
 
-	public int getProgram_id() {
-		return program_id;
-	}
+    @JsonProperty("type_id")
+    private int typeId;
 
-	public void setProgram_id(int program_id) {
-		this.program_id = program_id;
-	}
+    private String name;
+    private String type;
 
-	public int getType_id() {
-		return type_id;
-	}
+    @JsonProperty("program_obsolete")
+    private boolean programObsolete;
 
-	public void setType_id(int type_id) {
-		this.type_id = type_id;
-	}
+    @JsonProperty("type_obsolete")
+    private boolean typeObsolete;
 
-	public String getName() {
-		return name;
-	}
+    private String status;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    // Getters & Setters
 
-	public String getType() {
-		return type;
-	}
+    public int getProgramId() {
+        return programId;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setProgramId(int programId) {
+        this.programId = programId;
+    }
 
-	public boolean isProgram_obsolete() {
-		return program_obsolete;
-	}
+    public int getTypeId() {
+        return typeId;
+    }
 
-	public void setProgram_obsolete(boolean program_obsolete) {
-		this.program_obsolete = program_obsolete;
-	}
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
+    }
 
-	public boolean isType_obsolete() {
-		return type_obsolete;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setType_obsolete(boolean type_obsolete) {
-		this.type_obsolete = type_obsolete;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isProgramObsolete() {
+        return programObsolete;
+    }
+
+    public void setProgramObsolete(boolean programObsolete) {
+        this.programObsolete = programObsolete;
+    }
+
+    public boolean isTypeObsolete() {
+        return typeObsolete;
+    }
+
+    public void setTypeObsolete(boolean typeObsolete) {
+        this.typeObsolete = typeObsolete;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

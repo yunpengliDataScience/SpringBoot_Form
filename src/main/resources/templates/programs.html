@@ -94,17 +94,17 @@ button:disabled { background: #ccc; }
 </div>
 
 <script>
-//var contextPath = /*[[${#httpServletRequest.contextPath}]]*/ '';
 
 let programData = [];
-let nextProgramId = 100;
-let nextTypeId = 200;
 
 function clearValidation(){
     $("#errorMsg").html("");
     $(".programName, .programType").removeClass("invalid");
 }
 
+/* =========================
+   RENDER TABLE
+========================= */
 function renderTable(){
     let tbody = $("#programTable tbody");
     tbody.empty();
@@ -125,13 +125,16 @@ function renderTable(){
 
             <input type="hidden" class="programId" value="${item.program_id}">
             <input type="hidden" class="typeId" value="${item.type_id}">
+            <input type="hidden" class="rowStatus" value="UNCHANGED">
         </tr>`;
 
         tbody.append(row);
     });
 }
 
-/* OPEN MODAL → LOAD FROM BACKEND */
+/* =========================
+   OPEN MODAL
+========================= */
 $("#openModal").click(function(){
 
     clearValidation();
@@ -142,6 +145,13 @@ $("#openModal").click(function(){
         type: "GET",
         success: function(data){
             programData = data;
+
+            // ensure IDs exist
+            programData.forEach(d => {
+                if(d.program_id == null) d.program_id = -1;
+                if(d.type_id == null) d.type_id = -1;
+            });
+
             renderTable();
             $("#errorMsg").text("");
             $("#modalOverlay").show();
@@ -153,8 +163,11 @@ $("#openModal").click(function(){
     });
 });
 
-/* CREATE */
+/* =========================
+   CREATE
+========================= */
 $("#createRow").click(function(){
+
     let row = `
     <tr>
         <td><input type="radio" name="rowSelect"></td>
@@ -165,23 +178,53 @@ $("#createRow").click(function(){
 
         <input type="hidden" class="programId" value="-1">
         <input type="hidden" class="typeId" value="-1">
+        <input type="hidden" class="rowStatus" value="NEW">
     </tr>`;
+
     $("#programTable tbody").append(row);
 });
 
-/* ENABLE DELETE */
+/* =========================
+   MARK MODIFIED
+========================= */
+$(document).on("input change", ".programName, .programType, .programObsolete, .typeObsolete", function(){
+
+    let row = $(this).closest("tr");
+    let status = row.find(".rowStatus").val();
+
+    if(status !== "NEW"){
+        row.find(".rowStatus").val("MODIFIED");
+    }
+});
+
+/* =========================
+   ENABLE DELETE
+========================= */
 $(document).on("change", "input[name='rowSelect']", function(){
     $("#deleteRowBtn").prop("disabled", false);
 });
 
-/* DELETE */
+/* =========================
+   DELETE (FLAG ONLY)
+========================= */
 $("#deleteRowBtn").click(function(){
+
     let row = $("input[name='rowSelect']:checked").closest("tr");
-    row.remove();
+    let status = row.find(".rowStatus").val();
+
+    if(status === "NEW"){
+        row.remove(); // not saved yet
+    } else {
+        row.find(".rowStatus").val("DELETED");
+        row.hide(); // hide visually
+    }
+
     $("#deleteRowBtn").prop("disabled", true);
 });
 
-/* SAVE → SEND TO BACKEND */
+/* =========================
+   SAVE
+========================= */
 $("#saveData").click(function(){
 
     clearValidation();
@@ -191,6 +234,11 @@ $("#saveData").click(function(){
     let hasError = false;
 
     $("#programTable tbody tr").each(function(i){
+
+        let status = $(this).find(".rowStatus").val();
+
+        // skip deleted rows for validation
+        if(status === "DELETED") return;
 
         let pInput = $(this).find(".programName");
         let tInput = $(this).find(".programType");
@@ -222,23 +270,30 @@ $("#saveData").click(function(){
         if(rowErrors.length > 0){
             errors.push("Row " + (i+1) + ": " + rowErrors.join(", "));
         }
-
-        if(p && t){
-            newData.push({
-                program_id: parseInt($(this).find(".programId").val()),
-                type_id: parseInt($(this).find(".typeId").val()),
-                name: p,
-                type: t,
-                program_obsolete: $(this).find(".programObsolete").is(":checked"),
-                type_obsolete: $(this).find(".typeObsolete").is(":checked")
-            });
-        }
     });
 
     if(hasError){
         $("#errorMsg").html(errors.join("<br>"));
         return;
     }
+
+    /* 🔥 collect ONLY changed rows */
+    $("#programTable tbody tr").each(function(){
+
+        let status = $(this).find(".rowStatus").val();
+
+        if(status === "UNCHANGED") return;
+
+        newData.push({
+            program_id: parseInt($(this).find(".programId").val()),
+            type_id: parseInt($(this).find(".typeId").val()),
+            name: $(this).find(".programName").val().trim(),
+            type: $(this).find(".programType").val().trim(),
+            program_obsolete: $(this).find(".programObsolete").is(":checked"),
+            type_obsolete: $(this).find(".typeObsolete").is(":checked"),
+            status: status
+        });
+    });
 
     $.ajax({
         url: "api/programs/save",
@@ -247,13 +302,15 @@ $("#saveData").click(function(){
         data: JSON.stringify(newData),
         success: function(){
             alert("Saved to backend!");
-            console.log("Saved JSON:", newData);
+            console.log("Changed rows:", newData);
             $("#modalOverlay").hide();
         }
     });
 });
 
-/* CLOSE */
+/* =========================
+   CLOSE
+========================= */
 $("#closeModal").click(function(){
     $("#modalOverlay").hide();
 });

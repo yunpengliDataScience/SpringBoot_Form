@@ -22,96 +22,118 @@ public class ProgramServiceImp implements IProgramService {
 	@Override
 	public void save(List<ProgramDTO> dtos) {
 
-	    Map<String, Program> programCache = new HashMap<>();
-
-	    for (ProgramDTO dto : dtos) {
-
-	        String programName = dto.getName().trim().toLowerCase();
-
-	        Program program = programCache.get(programName);
-
-	        // 🔹 Step 1: resolve Program
-	        if (program == null) {
-
-	            if (dto.getProgram_id() != -1) {
-	                // try find by ID
-	                program = programRepository.findById((long) dto.getProgram_id()).orElse(null);
-	            }
-
-	            // if not found, try by name
-	            if (program == null) {
-	                program = programRepository.findByNameIgnoreCase(dto.getName()).orElse(null);
-	            }
-
-	            // still not found → create
-	            if (program == null) {
-	                program = new Program();
-	            }
-
-	            program.setName(dto.getName());
-	            program.setObsolete(dto.isProgram_obsolete());
-
-	            programCache.put(programName, program);
-	        }
-
-	        // 🔹 Step 2: handle ProgramType
-	        ProgramType type = null;
-
-	        if (dto.getType_id() != -1) {
-	            // find existing type inside program
-	            for (ProgramType t : program.getProgramTypes()) {
-	                if (t.getId() != null && t.getId().intValue() == dto.getType_id()) {
-	                    type = t;
-	                    break;
-	                }
-	            }
-	        }
-
-	        // if not found → create new
-	        if (type == null) {
-	            type = new ProgramType();
-	            program.addProgramType(type);
-	        }
-
-	        type.setType(dto.getType());
-	        type.setObsolete(dto.isType_obsolete());
-	    }
-
-	    // 🔹 Step 3: save all programs (cascade saves types)
-	    programRepository.saveAll(programCache.values());
-	}
-	
-	/*
-	@Override
-	public void save(List<ProgramDTO> dtos) {
-
-		programRepository.deleteAll(); // simple demo (overwrite)
-
-		Map<Integer, Program> map = new HashMap<>();
+		Map<String, Program> programCache = new HashMap<>();
 
 		for (ProgramDTO dto : dtos) {
 
-			Program p = map.get(dto.getProgram_id());
-
-			if (p == null) {
-				p = new Program();
-				p.setName(dto.getName());
-				p.setObsolete(dto.isProgram_obsolete());
-				map.put(dto.getProgram_id(), p);
+			if (dto.getStatus() == null || dto.getStatus().equals("UNCHANGED")) {
+				continue;
 			}
 
-			ProgramType t = new ProgramType();
-			t.setType(dto.getType());
-			t.setObsolete(dto.isType_obsolete());
+			switch (dto.getStatus()) {
 
-			p.addProgramType(t);
+			case "NEW":
+				handleNew(dto, programCache);
+				break;
+
+			case "MODIFIED":
+				handleModified(dto, programCache);
+				break;
+
+			case "DELETED":
+				handleDeleted(dto);
+				break;
+			}
 		}
 
-		programRepository.saveAll(map.values());
+		// save all updated/created programs
+		programRepository.saveAll(programCache.values());
 	}
-	*/
-	
-	
+
+	private void handleNew(ProgramDTO dto, Map<String, Program> cache) {
+
+		String key = dto.getName().trim().toLowerCase();
+
+		Program program = cache.get(key);
+
+		if (program == null) {
+
+			program = programRepository.findByNameIgnoreCase(dto.getName()).orElse(null);
+
+			if (program == null) {
+				program = new Program();
+			}
+
+			program.setName(dto.getName());
+			program.setObsolete(dto.isProgramObsolete());
+
+			cache.put(key, program);
+		}
+
+		ProgramType type = new ProgramType();
+		type.setType(dto.getType());
+		type.setObsolete(dto.isTypeObsolete());
+
+		program.addProgramType(type);
+	}
+
+	private void handleModified(ProgramDTO dto, Map<String, Program> cache) {
+
+		String key = dto.getName().trim().toLowerCase();
+
+		Program program = cache.get(key);
+
+		if (program == null) {
+
+			program = programRepository.findById((long) dto.getProgramId()).orElse(null);
+
+			if (program == null)
+				return;
+
+			program.setName(dto.getName());
+			program.setObsolete(dto.isProgramObsolete());
+
+			cache.put(key, program);
+		}
+
+		for (ProgramType t : program.getProgramTypes()) {
+
+			if (t.getId() != null && t.getId().intValue() == dto.getTypeId()) {
+
+				t.setType(dto.getType());
+				t.setObsolete(dto.isTypeObsolete());
+				return;
+			}
+		}
+
+		// if type not found → treat as new
+		ProgramType newType = new ProgramType();
+		newType.setType(dto.getType());
+		newType.setObsolete(dto.isTypeObsolete());
+
+		program.addProgramType(newType);
+	}
+
+	private void handleDeleted(ProgramDTO dto) {
+
+		if (dto.getProgramId() == -1 || dto.getTypeId() == -1) {
+			return; // not in DB
+		}
+
+		Program program = programRepository.findById((long) dto.getProgramId()).orElse(null);
+
+		if (program == null)
+			return;
+
+		program.getProgramTypes().removeIf(t -> t.getId() != null && t.getId().intValue() == dto.getTypeId());
+
+		if (program.getProgramTypes().isEmpty()) {
+			programRepository.delete(program);
+		} else {
+			programRepository.save(program);
+		}
+	}
+
 	// LOAD (DB → JSON)
 	@Override
 	public List<ProgramDTO> getAll() {
@@ -124,13 +146,13 @@ public class ProgramServiceImp implements IProgramService {
 
 				ProgramDTO dto = new ProgramDTO();
 
-				dto.setProgram_id(p.getId().intValue());
+				dto.setProgramId(p.getId().intValue());
 				dto.setName(p.getName());
-				dto.setProgram_obsolete(p.isObsolete());
+				dto.setProgramObsolete(p.isObsolete());
 
-				dto.setType_id(t.getId().intValue());
+				dto.setTypeId(t.getId().intValue());
 				dto.setType(t.getType());
-				dto.setType_obsolete(t.isObsolete());
+				dto.setTypeObsolete(t.isObsolete());
 
 				result.add(dto);
 			}
