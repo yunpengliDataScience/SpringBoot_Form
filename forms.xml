@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<formList>
+    <form>
+        <id>7</id>
+        <name>Form1</name>
+        <code>AAAAAA</code>
+        <field1></field1>
+        <field2></field2>
+    </form>
+    <form>
+        <id>8</id>
+        <name>Test</name>
+        <code>AAAAAA</code>
+        <field1></field1>
+        <field2></field2>
+    </form>
+</formList>

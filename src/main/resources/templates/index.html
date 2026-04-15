@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Home</title>
+
+<style>
+body {
+    font-family: Arial;
+    padding: 40px;
+}
+
+.container {
+    width: 400px;
+    margin: auto;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 30px;
+}
+
+a {
+    display: block;
+    margin: 15px;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+a:hover {
+    background: #0056b3;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>SpringBoot Form Application Home</h2>
+
+    <!-- 🔥 Thymeleaf automatically adds context path -->
+    <a th:href="@{/forwardToForms}">Go to Forms</a>
+    <a th:href="@{/programs}">Manage Programs (Popup Forms)</a>
+</div>
+
+</body>
+</html>

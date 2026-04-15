@@ -7,9 +7,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
 	@GetMapping("/")
-	public String redirect() {
+	public String home() {
+		return "index";
+	}
+
+	@GetMapping("/forwardToForms")
+	public String forms() {
+		return "redirect:/forms";
+	}
+
+	@GetMapping("/programs")
+	public String redirectaPrograms() {
 
 		// Redirect to another controller method
-		return "redirect:/forms";
+		return "programs";
 	}
 }
