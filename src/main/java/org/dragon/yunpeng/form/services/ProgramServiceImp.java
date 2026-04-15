@@ -22,6 +22,69 @@ public class ProgramServiceImp implements IProgramService {
 	@Override
 	public void save(List<ProgramDTO> dtos) {
 
+	    Map<String, Program> programCache = new HashMap<>();
+
+	    for (ProgramDTO dto : dtos) {
+
+	        String programName = dto.getName().trim().toLowerCase();
+
+	        Program program = programCache.get(programName);
+
+	        // 🔹 Step 1: resolve Program
+	        if (program == null) {
+
+	            if (dto.getProgram_id() != -1) {
+	                // try find by ID
+	                program = programRepository.findById((long) dto.getProgram_id()).orElse(null);
+	            }
+
+	            // if not found, try by name
+	            if (program == null) {
+	                program = programRepository.findByNameIgnoreCase(dto.getName()).orElse(null);
+	            }
+
+	            // still not found → create
+	            if (program == null) {
+	                program = new Program();
+	            }
+
+	            program.setName(dto.getName());
+	            program.setObsolete(dto.isProgram_obsolete());
+
+	            programCache.put(programName, program);
+	        }
+
+	        // 🔹 Step 2: handle ProgramType
+	        ProgramType type = null;
+
+	        if (dto.getType_id() != -1) {
+	            // find existing type inside program
+	            for (ProgramType t : program.getProgramTypes()) {
+	                if (t.getId() != null && t.getId().intValue() == dto.getType_id()) {
+	                    type = t;
+	                    break;
+	                }
+	            }
+	        }
+
+	        // if not found → create new
+	        if (type == null) {
+	            type = new ProgramType();
+	            program.addProgramType(type);
+	        }
+
+	        type.setType(dto.getType());
+	        type.setObsolete(dto.isType_obsolete());
+	    }
+
+	    // 🔹 Step 3: save all programs (cascade saves types)
+	    programRepository.saveAll(programCache.values());
+	}
+	
+	/*
+	@Override
+	public void save(List<ProgramDTO> dtos) {
+
 		programRepository.deleteAll(); // simple demo (overwrite)
 
 		Map<Integer, Program> map = new HashMap<>();
@@ -46,7 +109,9 @@ public class ProgramServiceImp implements IProgramService {
 
 		programRepository.saveAll(map.values());
 	}
-
+	*/
+	
+	
 	// LOAD (DB → JSON)
 	@Override
 	public List<ProgramDTO> getAll() {

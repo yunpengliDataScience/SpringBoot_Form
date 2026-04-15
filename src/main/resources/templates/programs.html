@@ -163,8 +163,8 @@ $("#createRow").click(function(){
         <td><input type="text" class="programType"></td>
         <td><input type="checkbox" class="typeObsolete"></td>
 
-        <input type="hidden" class="programId" value="${nextProgramId++}">
-        <input type="hidden" class="typeId" value="${nextTypeId++}">
+        <input type="hidden" class="programId" value="-1">
+        <input type="hidden" class="typeId" value="-1">
     </tr>`;
     $("#programTable tbody").append(row);
 });
@@ -247,7 +247,7 @@ $("#saveData").click(function(){
         data: JSON.stringify(newData),
         success: function(){
             alert("Saved to backend!");
-            console.log("Saved JSON:", programData);
+            console.log("Saved JSON:", newData);
             $("#modalOverlay").hide();
         }
     });
