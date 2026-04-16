@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Manage Programs</title>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+body { font-family: Arial; padding: 30px; }
+
+#modalOverlay {
+    display: none;
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.5);
+}
+
+#modalBox {
+    background: white;
+    width: 850px;
+    margin: 60px auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.tableContainer {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+    position: sticky;
+    top: 0;
+    background: #f5f5f5;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: center;
+}
+
+input[type="text"] { width: 95%; }
+
+.invalid { border: 2px solid red !important; }
+
+#errorMsg {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+button { margin: 5px; padding: 5px 10px; }
+button:disabled { background: #ccc; }
+</style>
+</head>
+
+<body>
+
+<button id="openModal">Manage Programs</button>
+
+<div id="modalOverlay">
+  <div id="modalBox">
+
+    <h3>Manage Programs</h3>
+    <div id="errorMsg"></div>
+
+    <div class="tableContainer">
+      <table id="programTable">
+        <thead>
+          <tr>
+            <th>Select</th>
+            <th>Program *</th>
+            <th>Program Obsolete</th>
+            <th>Program Type *</th>
+            <th>Type Obsolete</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <button id="createRow">Create Program</button>
+    <button id="saveData">Save</button>
+    <button id="deleteRowBtn" disabled>Delete</button>
+    <button id="closeModal">Close</button>
+
+  </div>
+</div>
+
+<script>
+let programData = [];
+
+/* =========================
+   MOCK DATA
+========================= */
+let mockProgramData = [
+    {
+        program_id: 1,
+        type_id: 101,
+        name: "English Class",
+        type: "Education",
+        program_obsolete: false,
+        type_obsolete: false
+    },
+    {
+        program_id: 2,
+        type_id: 102,
+        name: "Volleyball Training",
+        type: "Sports",
+        program_obsolete: false,
+        type_obsolete: false
+    },
+    {
+        program_id: 3,
+        type_id: 103,
+        name: "Senior Activity",
+        type: "Community",
+        program_obsolete: true,
+        type_obsolete: false
+    },
+    {
+        program_id: null,
+        type_id: null,
+        name: "Art Workshop",
+        type: "Creative",
+        program_obsolete: false,
+        type_obsolete: true
+    }
+];
+
+/* =========================
+   HELPERS
+========================= */
+function clearValidation(){
+    $("#errorMsg").html("");
+    $(".programName, .programType").removeClass("invalid");
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function getNextTempId(fieldName) {
+    let minId = -1;
+
+    $("#programTable tbody tr").each(function () {
+        const value = parseInt($(this).find("." + fieldName).val(), 10);
+        if (!isNaN(value) && value < minId) {
+            minId = value;
+        }
+    });
+
+    return minId - 1;
+}
+
+/* =========================
+   RENDER TABLE
+========================= */
+function renderTable(){
+    let tbody = $("#programTable tbody");
+    tbody.empty();
+
+    $.each(programData, function(i, item){
+
+        let row = `
+        <tr>
+            <td><input type="radio" name="rowSelect"></td>
+
+            <td><input type="text" class="programName" value="${escapeHtml(item.name)}"></td>
+
+            <td><input type="checkbox" class="programObsolete" ${item.program_obsolete ? "checked" : ""}></td>
+
+            <td><input type="text" class="programType" value="${escapeHtml(item.type)}"></td>
+
+            <td><input type="checkbox" class="typeObsolete" ${item.type_obsolete ? "checked" : ""}></td>
+
+            <input type="hidden" class="programId" value="${item.program_id}">
+            <input type="hidden" class="typeId" value="${item.type_id}">
+            <input type="hidden" class="rowStatus" value="UNCHANGED">
+        </tr>`;
+
+        tbody.append(row);
+    });
+}
+
+/* =========================
+   OPEN MODAL
+========================= */
+$("#openModal").click(function(){
+
+    clearValidation();
+    $("#errorMsg").text("Loading...");
+
+    // Mock backend response
+    programData = JSON.parse(JSON.stringify(mockProgramData));
+
+    // ensure IDs exist
+    programData.forEach(d => {
+        if(d.program_id == null) d.program_id = -1;
+        if(d.type_id == null) d.type_id = -1;
+    });
+
+    renderTable();
+    $("#errorMsg").text("");
+    $("#modalOverlay").show();
+    $("#deleteRowBtn").prop("disabled", true);
+});
+
+/* =========================
+   CREATE
+========================= */
+$("#createRow").click(function(){
+
+    const newProgramId = getNextTempId("programId");
+    const newTypeId = getNextTempId("typeId");
+
+    let row = `
+    <tr>
+        <td><input type="radio" name="rowSelect"></td>
+        <td><input type="text" class="programName"></td>
+        <td><input type="checkbox" class="programObsolete"></td>
+        <td><input type="text" class="programType"></td>
+        <td><input type="checkbox" class="typeObsolete"></td>
+
+        <input type="hidden" class="programId" value="${newProgramId}">
+        <input type="hidden" class="typeId" value="${newTypeId}">
+        <input type="hidden" class="rowStatus" value="NEW">
+    </tr>`;
+
+    $("#programTable tbody").append(row);
+});
+
+/* =========================
+   MARK MODIFIED
+========================= */
+$(document).on("input change", ".programName, .programType, .programObsolete, .typeObsolete", function(){
+
+    let row = $(this).closest("tr");
+    let status = row.find(".rowStatus").val();
+
+    if(status !== "NEW"){
+        row.find(".rowStatus").val("MODIFIED");
+    }
+});
+
+/* =========================
+   ENABLE DELETE
+========================= */
+$(document).on("change", "input[name='rowSelect']", function(){
+    $("#deleteRowBtn").prop("disabled", false);
+});
+
+/* =========================
+   DELETE (FLAG ONLY)
+========================= */
+$("#deleteRowBtn").click(function(){
+
+    let row = $("input[name='rowSelect']:checked").closest("tr");
+
+    if(row.length === 0){
+        return;
+    }
+
+    let status = row.find(".rowStatus").val();
+
+    if(status === "NEW"){
+        row.remove(); // not saved yet
+    } else {
+        row.find(".rowStatus").val("DELETED");
+        row.hide(); // hide visually
+    }
+
+    $("#deleteRowBtn").prop("disabled", true);
+});
+
+/* =========================
+   SAVE
+========================= */
+$("#saveData").click(function(){
+
+    clearValidation();
+
+    let newData = [];
+    let errors = [];
+    let hasError = false;
+
+    $("#programTable tbody tr").each(function(i){
+
+        let status = $(this).find(".rowStatus").val();
+
+        // skip deleted rows for validation
+        if(status === "DELETED") return;
+
+        let pInput = $(this).find(".programName");
+        let tInput = $(this).find(".programType");
+
+        let p = pInput.val().trim();
+        let t = tInput.val().trim();
+
+        let rowErrors = [];
+
+        if(p === "" && t === ""){
+            rowErrors.push("Program is required");
+            rowErrors.push("Program type is required");
+            pInput.addClass("invalid");
+            tInput.addClass("invalid");
+            hasError = true;
+        } else {
+            if(p === ""){
+                rowErrors.push("Program is required");
+                pInput.addClass("invalid");
+                hasError = true;
+            }
+            if(t === ""){
+                rowErrors.push("Program type is required");
+                tInput.addClass("invalid");
+                hasError = true;
+            }
+        }
+
+        if(rowErrors.length > 0){
+            errors.push("Row " + (i+1) + ": " + rowErrors.join(", "));
+        }
+    });
+
+    if(hasError){
+        $("#errorMsg").html(errors.join("<br>"));
+        return;
+    }
+
+    // collect ONLY changed rows
+    $("#programTable tbody tr").each(function(){
+
+        let status = $(this).find(".rowStatus").val();
+
+        if(status === "UNCHANGED") return;
+
+        newData.push({
+            program_id: parseInt($(this).find(".programId").val(), 10),
+            type_id: parseInt($(this).find(".typeId").val(), 10),
+            name: $(this).find(".programName").val().trim(),
+            type: $(this).find(".programType").val().trim(),
+            program_obsolete: $(this).find(".programObsolete").is(":checked"),
+            type_obsolete: $(this).find(".typeObsolete").is(":checked"),
+            status: status
+        });
+    });
+
+    console.log("Mock Save Payload:", newData);
+    alert("Mock saved! Check console for payload.");
+
+    // Optional: simulate backend refresh
+    $("#modalOverlay").hide();
+});
+
+/* =========================
+   CLOSE
+========================= */
+$("#closeModal").click(function(){
+    $("#modalOverlay").hide();
+});
+</script>
+
+</body>
+</html>
